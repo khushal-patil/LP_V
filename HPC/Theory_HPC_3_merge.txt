@@ -1,0 +1,467 @@
+Great — this is your **Parallel Merge Sort (HPC-01)** program.
+This one is **VERY IMPORTANT** because examiners often prefer it over bubble sort (it’s actually efficient).
+
+I’ll explain it in full **exam + viva + algorithm + tricky questions** format.
+
+---
+
+# 📌 1. Program Overview
+
+Your file: 
+
+👉 This program implements:
+
+* **Sequential Merge Sort**
+* **Parallel Merge Sort using OpenMP Tasks**
+* Compares **execution time + speedup**
+
+---
+
+# 📌 2. THEORY (What you must say)
+
+From your practical sheet :
+
+### 🔹 Merge Sort Definition
+
+👉 Divide and Conquer algorithm:
+
+1. Divide array into halves
+2. Sort each half
+3. Merge them
+
+---
+
+### 🔹 Why Merge Sort is good for parallel?
+
+👉 Because:
+
+* Subproblems are **independent**
+* Can run **simultaneously**
+
+---
+
+# 📌 3. CODE EXPLANATION (STEP BY STEP)
+
+---
+
+## 🔹 Header Files
+
+```cpp
+#include <omp.h>
+```
+
+👉 Used for:
+
+* Parallel regions
+* Tasks
+
+---
+
+# 📌 4. MERGE FUNCTION (VERY IMPORTANT)
+
+```cpp
+void merge(vector<int>& arr, int left, int mid, int right)
+```
+
+### 🔹 Purpose:
+
+👉 Combine two sorted arrays into one
+
+---
+
+## 🔹 Step 1: Create temp arrays
+
+```cpp
+vector<int> L(n1), R(n2);
+```
+
+---
+
+## 🔹 Step 2: Copy data
+
+```cpp
+L[i] = arr[left + i];
+R[i] = arr[mid + 1 + i];
+```
+
+---
+
+## 🔹 Step 3: Merge
+
+```cpp
+arr[k++] = (L[i] <= R[j]) ? L[i++] : R[j++];
+```
+
+👉 Compare and insert smaller element
+
+---
+
+# 📌 5. SEQUENTIAL MERGE SORT
+
+```cpp
+void sequentialMergeSort(arr, left, right)
+```
+
+---
+
+## 🔹 Base Case
+
+```cpp
+if (left >= right) return;
+```
+
+---
+
+## 🔹 Divide
+
+```cpp
+int mid = (left + right) / 2;
+```
+
+---
+
+## 🔹 Recursion
+
+```cpp
+sequentialMergeSort(left half)
+sequentialMergeSort(right half)
+```
+
+---
+
+## 🔹 Merge
+
+```cpp
+merge(...)
+```
+
+---
+
+# 📌 6. PARALLEL MERGE SORT (MOST IMPORTANT)
+
+---
+
+## 🔹 Helper Function
+
+```cpp
+parallelMergeSortHelper(arr, left, right, depth)
+```
+
+👉 `depth` controls number of threads
+
+---
+
+## 🔹 Key Idea
+
+```cpp
+if (depth <= 0)
+```
+
+👉 Stop parallelism → switch to sequential
+
+---
+
+## 🔹 TASK CREATION
+
+```cpp
+#pragma omp task
+parallelMergeSortHelper(left half)
+```
+
+```cpp
+#pragma omp task
+parallelMergeSortHelper(right half)
+```
+
+👉 Each half runs in **parallel**
+
+---
+
+## 🔴 TASKWAIT (VERY IMPORTANT)
+
+```cpp
+#pragma omp taskwait
+```
+
+👉 Wait until both tasks complete
+
+---
+
+## 🔹 Merge Step
+
+```cpp
+merge(arr, left, mid, right);
+```
+
+---
+
+# 📌 7. MAIN PARALLEL REGION
+
+```cpp
+#pragma omp parallel
+{
+    #pragma omp single
+    parallelMergeSortHelper(...)
+}
+```
+
+### 🔹 Explain this clearly:
+
+| Directive  | Meaning                      |
+| ---------- | ---------------------------- |
+| `parallel` | Create threads               |
+| `single`   | Only one thread starts tasks |
+
+👉 Other threads execute tasks
+
+---
+
+# 📌 8. TIME MEASUREMENT
+
+```cpp
+omp_get_wtime()
+```
+
+👉 Used to calculate:
+
+* Sequential time
+* Parallel time
+
+---
+
+# 📌 9. SPEEDUP
+
+```cpp
+Speedup = seq_time / par_time
+```
+
+---
+
+# 📌 10. ALGORITHM (WRITE IN EXAM)
+
+---
+
+### 🔹 Sequential Merge Sort
+
+1. Divide array
+2. Recursively sort halves
+3. Merge sorted halves
+
+---
+
+### 🔹 Parallel Merge Sort
+
+1. Divide array
+2. Create parallel tasks for both halves
+3. Wait for tasks to complete
+4. Merge results
+
+---
+
+# 📌 11. OUTPUT EXAMPLE
+
+```text
+Sequential Merge Sort Time: 15 ms
+Parallel Merge Sort Time: 5 ms
+Speedup: 3x
+```
+
+---
+
+# 📌 12. VIVA QUESTIONS (VERY IMPORTANT)
+
+---
+
+## 🔹 Q1: Why merge sort is better than bubble sort?
+
+👉 Because:
+
+* Time complexity:
+
+```text
+O(n log n)
+```
+
+---
+
+## 🔹 Q2: What is divide and conquer?
+
+👉 Breaking problem into smaller subproblems
+
+---
+
+## 🔹 Q3: What is OpenMP task?
+
+👉 A unit of work executed by threads
+
+---
+
+## 🔹 Q4: Why `#pragma omp task` used?
+
+👉 To run recursive calls in parallel
+
+---
+
+## 🔹 Q5: What is `taskwait`?
+
+👉 Wait for all tasks to complete
+
+---
+
+## 🔹 Q6: Why `single` used?
+
+👉 To avoid multiple threads creating duplicate tasks
+
+---
+
+## 🔹 Q7: What is depth parameter?
+
+👉 Controls recursion parallelism
+
+👉 Prevents:
+
+* Too many threads
+* Overhead
+
+---
+
+## 🔹 Q8: Time complexity?
+
+👉
+
+```text
+O(n log n)
+```
+
+---
+
+## 🔹 Q9: Space complexity?
+
+👉
+
+```text
+O(n)
+```
+
+👉 Due to temporary arrays
+
+---
+
+## 🔹 Q10: Why merge sort is parallel-friendly?
+
+👉 Independent subproblems
+
+---
+
+## 🔹 Q11: What happens without taskwait?
+
+👉 Incorrect merging (race condition)
+
+---
+
+## 🔹 Q12: What is scalability?
+
+👉 Performance improves with more cores
+
+---
+
+## 🔹 Q13: Why use OpenMP instead of threads?
+
+👉 Easier:
+
+* Less code
+* Automatic thread management
+
+---
+
+## 🔹 Q14: Difference: parallel bubble vs merge?
+
+| Feature     | Bubble  | Merge      |
+| ----------- | ------- | ---------- |
+| Complexity  | O(n²)   | O(n log n) |
+| Parallelism | Limited | High       |
+| Efficiency  | Low     | High       |
+
+---
+
+## 🔹 Q15: Where used?
+
+👉 Real-world:
+
+* Large data sorting
+* Databases
+* Parallel computing systems
+
+---
+
+# 📌 13. TRICK QUESTIONS (EXAMINER FAVORITE)
+
+---
+
+## ❓ Why not always use parallel merge sort?
+
+👉 Because:
+
+* Thread overhead
+* Small inputs → slower than sequential
+
+---
+
+## ❓ Why limit depth?
+
+👉 To avoid:
+
+* Too many threads
+* Performance degradation
+
+---
+
+## ❓ Which is best sorting algorithm in parallel?
+
+👉 Merge sort (or quicksort variants)
+
+---
+
+# 📌 14. WHAT EXTERNAL WILL ASK
+
+👉 Must prepare:
+
+1. Difference between task & parallel for
+2. Why task is used instead of loop
+3. Why merge sort is efficient
+4. Role of taskwait
+5. Comparison with bubble sort
+
+---
+
+# 📌 15. SHORT SUMMARY (LAST MINUTE)
+
+👉 Say this:
+
+> "This program implements sequential and parallel merge sort using OpenMP tasks. The array is divided recursively, and each half is processed in parallel using tasks. Synchronization is handled using taskwait, and performance is evaluated using execution time and speedup."
+
+---
+
+# 🚀 FINAL (VERY IMPORTANT FOR YOU)
+
+Now you have covered:
+
+✅ BFS
+✅ DFS
+✅ Bubble Sort
+✅ Merge Sort
+
+👉 These are **100% your HPC practical syllabus**
+
+---
+
+# 🔥 If you want next (HIGHLY RECOMMENDED)
+
+I can give you:
+
+✅ **Full viva (all programs combined – most asked questions)**
+✅ **1-page cheat sheet (revise in 5 mins before exam)**
+✅ **Common mistakes + how to answer external confidently**
+✅ **Expected questions list (very accurate)**
+
+Just tell me 👍

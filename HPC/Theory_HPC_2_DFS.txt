@@ -1,0 +1,450 @@
+Great — now this is your **Parallel DFS program**. I’ll explain it in the same **exam-ready format** so you can confidently answer **external viva**.
+
+---
+
+# 📌 1. Program Overview
+
+Your file: 
+
+👉 This program implements **Parallel Depth First Search (DFS)** using **OpenMP**.
+
+### ✔ Key Idea:
+
+* DFS explores **deep into graph first**
+* Uses **stack (LIFO)**
+* Parallelism is applied when exploring neighbors
+
+---
+
+# 📌 2. THEORY (What you must say)
+
+From your practical PDF:
+
+### 🔹 DFS Definition:
+
+> DFS explores as far as possible along a branch before backtracking 
+
+👉 Simple words:
+
+* Go deep → then backtrack → then explore next
+
+---
+
+# 📌 3. CODE EXPLANATION (Line-by-Line)
+
+---
+
+## 🔹 Header Files
+
+```cpp
+#include <iostream>
+#include <vector>
+#include <omp.h>
+```
+
+* `omp.h` → enables parallel programming
+
+---
+
+## 🔹 Graph Class
+
+```cpp
+int V;
+vector<vector<int>> adj;
+```
+
+👉 Adjacency list representation
+
+---
+
+## 🔹 Constructor
+
+```cpp
+Graph(int V) {
+    this->V = V;
+    adj.resize(V);
+}
+```
+
+---
+
+## 🔹 Add Edge
+
+```cpp
+void addEdge(int u, int v) {
+    adj[u].push_back(v);
+    adj[v].push_back(u);
+}
+```
+
+👉 Undirected graph
+
+---
+
+# 📌 4. CORE FUNCTION: parallelDFS()
+
+---
+
+## 🔹 Initialization
+
+```cpp
+vector<bool> visited(V, false);
+vector<int> stack;
+```
+
+👉 Stack is used instead of queue (DFS property)
+
+---
+
+## 🔹 Start Node
+
+```cpp
+stack.push_back(start);
+```
+
+---
+
+## 🔹 Main Loop
+
+```cpp
+while (!stack.empty())
+```
+
+👉 Continue until stack is empty
+
+---
+
+## 🔹 Pop Node
+
+```cpp
+int u = stack.back();
+stack.pop_back();
+```
+
+👉 LIFO behavior
+
+---
+
+## 🔹 Skip Visited Nodes
+
+```cpp
+if (visited[u]) continue;
+```
+
+👉 Avoid cycles
+
+---
+
+## 🔹 Visit Node
+
+```cpp
+visited[u] = true;
+cout << u << " ";
+```
+
+---
+
+## 🔹 Store Neighbors
+
+```cpp
+vector<int> to_push;
+```
+
+---
+
+# 🚀 PARALLEL SECTION (VERY IMPORTANT)
+
+---
+
+## 🔹 Parallel Region
+
+```cpp
+#pragma omp parallel
+```
+
+👉 Multiple threads created
+
+---
+
+## 🔹 Thread Local Storage
+
+```cpp
+vector<int> local_push;
+```
+
+👉 Each thread collects nodes separately
+
+---
+
+## 🔹 Parallel Loop
+
+```cpp
+#pragma omp for nowait schedule(dynamic)
+```
+
+### Explain:
+
+| Clause    | Meaning        |
+| --------- | -------------- |
+| `for`     | Parallel loop  |
+| `nowait`  | No barrier     |
+| `dynamic` | Load balancing |
+
+---
+
+## 🔹 Process Adjacent Nodes
+
+```cpp
+if (!visited[adj[u][i]])
+```
+
+👉 Check unvisited nodes
+
+---
+
+## 🔴 CRITICAL SECTION
+
+```cpp
+#pragma omp critical
+{
+    to_push.insert(...)
+}
+```
+
+👉 Combine results safely
+👉 Avoid race condition
+
+---
+
+## 🔹 Push to Stack
+
+```cpp
+for (int v : to_push) {
+    stack.push_back(v);
+}
+```
+
+---
+
+# 📌 5. MAIN FUNCTION
+
+Same as BFS:
+
+* Input vertices & edges
+* Build graph
+* Input start node
+* Call DFS
+
+---
+
+# 📌 6. ALGORITHM (WRITE IN EXAM)
+
+### 🔹 Parallel DFS Algorithm
+
+1. Initialize visited array
+2. Push start node into stack
+3. While stack not empty:
+
+   * Pop node
+   * If not visited:
+
+     * Mark visited
+     * Print node
+     * Parallel explore neighbors
+     * Store in local lists
+     * Merge results
+     * Push into stack
+
+---
+
+# 📌 7. OUTPUT EXAMPLE
+
+```cpp
+Input:
+Vertices: 5
+Edges: 4
+0 1
+0 2
+1 3
+2 4
+Start: 0
+
+Output:
+Parallel DFS Traversal: 0 2 4 1 3
+```
+
+👉 Order may vary (IMPORTANT POINT!)
+
+---
+
+# ⚠️ VERY IMPORTANT DIFFERENCE
+
+👉 **DFS output is NOT fixed in parallel**
+
+👉 Because:
+
+* Threads run in different order
+
+---
+
+# 📌 8. VIVA QUESTIONS (HIGHLY IMPORTANT)
+
+---
+
+## 🔹 Q1: What is DFS?
+
+👉 Traversal algorithm that goes deep before backtracking
+
+---
+
+## 🔹 Q2: BFS vs DFS?
+
+| BFS           | DFS            |
+| ------------- | -------------- |
+| Queue         | Stack          |
+| Level-wise    | Depth-wise     |
+| Shortest path | Not guaranteed |
+
+---
+
+## 🔹 Q3: Why stack in DFS?
+
+👉 Because DFS follows LIFO order
+
+---
+
+## 🔹 Q4: Why parallel DFS is difficult?
+
+👉 Because:
+
+* DFS is sequential by nature
+* Depends on previous nodes
+
+---
+
+## 🔹 Q5: What is OpenMP?
+
+👉 API for parallel programming in C/C++
+
+---
+
+## 🔹 Q6: What is `#pragma omp for`?
+
+👉 Distributes loop among threads
+
+---
+
+## 🔹 Q7: What is race condition?
+
+👉 Multiple threads modifying same data
+
+---
+
+## 🔹 Q8: Why critical used?
+
+👉 To safely merge:
+
+* `to_push` vector
+
+---
+
+## 🔹 Q9: Why local_push used?
+
+👉 To reduce:
+
+* contention
+* synchronization overhead
+
+---
+
+## 🔹 Q10: Time Complexity?
+
+👉 Same as DFS:
+
+```
+O(V + E)
+```
+
+---
+
+## 🔹 Q11: Is DFS fully parallel?
+
+👉 ❌ No
+👉 Because:
+
+* It depends on traversal path
+
+---
+
+## 🔹 Q12: Why output differs?
+
+👉 Because:
+
+* Thread execution order changes
+
+---
+
+## 🔹 Q13: What is backtracking?
+
+👉 Returning to previous node after exploring
+
+---
+
+## 🔹 Q14: Where DFS is used?
+
+👉 Applications:
+
+* Cycle detection
+* Path finding
+* Maze solving
+
+---
+
+## 🔹 Q15: What happens without visited?
+
+👉 Infinite loop (cycle)
+
+---
+
+# 📌 9. WHAT EXTERNAL WILL FOCUS ON
+
+👉 Be ready to explain:
+
+1. Difference between BFS & DFS code
+2. Why stack used
+3. Why parallelization is limited
+4. Why output order changes
+5. Role of OpenMP directives
+6. Critical section importance
+
+---
+
+# 📌 10. IMPORTANT COMPARISON (YOU MUST KNOW)
+
+| Feature           | BFS        | DFS        |
+| ----------------- | ---------- | ---------- |
+| Data Structure    | Queue      | Stack      |
+| Traversal         | Level-wise | Depth-wise |
+| Parallel Friendly | More       | Less       |
+| Output            | Stable     | Unstable   |
+
+---
+
+# 📌 11. SHORT SUMMARY (FOR LAST MOMENT)
+
+👉 Say this:
+
+> "This program implements parallel DFS using OpenMP where adjacency nodes are explored in parallel, but traversal order is not fixed due to concurrent execution. A stack is used for depth-first traversal and synchronization is handled using critical sections."
+
+---
+
+# 🚀 If you want next (HIGHLY RECOMMENDED)
+
+I can give you:
+
+✅ **Full viva (both BFS + DFS combined answers)**
+✅ **Differences examiner will definitely ask**
+✅ **1-page revision sheet (very useful before exam)**
+✅ **Common mistakes + trick questions**
+
+Just tell me 👍

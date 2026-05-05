@@ -1,0 +1,504 @@
+Perfect — this is your **Deep Learning Practical 4: RNN for Google Stock Price Prediction (Time Series)**.
+This is a **very important experiment** because it introduces **Recurrent Neural Networks (RNN)**.
+
+I’ll explain it in full **exam + viva + code + graphs + concepts format** 👇
+
+---
+
+# 📌 1. Program Overview
+
+Your file: 
+
+👉 This program:
+
+* Predicts **Google stock prices**
+* Uses **RNN (Recurrent Neural Network)**
+* Works on **time series data**
+
+---
+
+# 📌 2. THEORY (VERY IMPORTANT)
+
+---
+
+## 🔹 What is Time Series Data?
+
+👉 Data that changes over time
+
+Examples:
+
+* Stock prices
+* Weather
+* Sales
+
+---
+
+## 🔹 What is RNN?
+
+👉 Recurrent Neural Network:
+
+* Processes **sequential data**
+* Remembers previous values
+
+---
+
+## 🔹 Why RNN?
+
+👉 Because:
+
+* Stock price depends on past values
+
+---
+
+# 📌 3. DATASET
+
+---
+
+👉 Data contains:
+
+* Date
+* Open, High, Low, Close
+
+👉 We use:
+
+```python
+Close price
+```
+
+---
+
+# 📌 4. DATA VISUALIZATION
+
+---
+
+```python
+plt.plot(df['Close'])
+```
+
+👉 Shows:
+
+* Trend over time
+
+👉 Important:
+
+* Helps understand data pattern
+
+---
+
+# 📌 5. DATA PREPROCESSING (VERY IMPORTANT)
+
+---
+
+## 🔹 Normalize Data
+
+```python
+MinMaxScaler(0,1)
+```
+
+👉 Converts:
+
+```text
+Price → 0 to 1 range
+```
+
+👉 Why?
+
+* Faster training
+
+---
+
+# 📌 6. CREATE SEQUENCES (CORE PART)
+
+---
+
+```python
+TIME_STEPS = 60
+```
+
+👉 Use:
+
+* Last 60 days → predict next day
+
+---
+
+### 🔹 Example:
+
+```text
+Day 1–60 → predict Day 61
+Day 2–61 → predict Day 62
+```
+
+---
+
+## 🔹 Reshape
+
+```python
+X_train.shape = (samples, 60, 1)
+```
+
+👉 Required for RNN
+
+---
+
+# 📌 7. MODEL ARCHITECTURE (VERY IMPORTANT)
+
+---
+
+```python
+SimpleRNN → Dropout → SimpleRNN → Dense → Output
+```
+
+---
+
+## 🔹 First RNN Layer
+
+```python
+SimpleRNN(64, return_sequences=True)
+```
+
+👉 Returns sequence
+
+---
+
+## 🔹 Dropout
+
+```python
+Dropout(0.2)
+```
+
+👉 Prevent overfitting
+
+---
+
+## 🔹 Second RNN Layer
+
+```python
+SimpleRNN(64)
+```
+
+👉 Outputs final vector
+
+---
+
+## 🔹 Dense Layer
+
+```python
+Dense(32)
+```
+
+👉 Fully connected
+
+---
+
+## 🔹 Output Layer
+
+```python
+Dense(1)
+```
+
+👉 Predicts price
+
+---
+
+# 📌 8. MODEL COMPILATION
+
+```python
+loss = mean_squared_error
+optimizer = adam
+```
+
+---
+
+# 📌 9. TRAINING
+
+---
+
+```python
+epochs = 60
+```
+
+👉 Uses:
+
+* EarlyStopping
+
+👉 Stops when:
+
+* No improvement
+
+---
+
+# 📌 10. PREDICTIONS
+
+---
+
+```python
+model.predict(X_test)
+```
+
+👉 Output:
+
+* Scaled values
+
+---
+
+## 🔹 Inverse Scaling
+
+```python
+scaler.inverse_transform()
+```
+
+👉 Convert back to real price
+
+---
+
+# 📌 11. EVALUATION METRICS
+
+---
+
+## 🔹 MSE
+
+👉 Mean Squared Error
+
+---
+
+## 🔹 RMSE
+
+👉 Root Mean Squared Error
+
+---
+
+## 🔹 MAE
+
+👉 Mean Absolute Error
+
+---
+
+## 🔹 MAPE
+
+👉 Percentage error
+
+---
+
+# 📌 12. GRAPH ANALYSIS (VERY IMPORTANT)
+
+---
+
+## 🔹 1. Loss Graph
+
+👉 Should decrease
+
+---
+
+## 🔹 2. Actual vs Predicted
+
+👉 Two lines:
+
+* Blue → actual
+* Red → predicted
+
+👉 If close → good model
+
+---
+
+# 📌 13. FUTURE FORECAST (IMPORTANT)
+
+---
+
+👉 Predict next 30 days
+
+### Steps:
+
+1. Take last 60 days
+2. Predict next day
+3. Add prediction
+4. Repeat
+
+---
+
+# 📌 14. ALGORITHM (WRITE IN EXAM)
+
+---
+
+1. Load dataset
+2. Normalize data
+3. Create sequences
+4. Split data
+5. Build RNN model
+6. Train model
+7. Predict values
+8. Evaluate model
+9. Forecast future values
+
+---
+
+# 📌 15. VIVA QUESTIONS (VERY IMPORTANT)
+
+---
+
+## 🔹 Q1: What is RNN?
+
+👉 Neural network for sequential data
+
+---
+
+## 🔹 Q2: Why RNN for stock prediction?
+
+👉 Because:
+
+* Depends on past values
+
+---
+
+## 🔹 Q3: What is time step?
+
+👉 Number of past values used
+
+---
+
+## 🔹 Q4: Why normalization?
+
+👉 Faster convergence
+
+---
+
+## 🔹 Q5: What is sequence?
+
+👉 Input window of past data
+
+---
+
+## 🔹 Q6: What is dropout?
+
+👉 Prevent overfitting
+
+---
+
+## 🔹 Q7: What is MSE?
+
+👉 Error measure
+
+---
+
+## 🔹 Q8: Why inverse scaling?
+
+👉 Convert prediction back to real values
+
+---
+
+## 🔹 Q9: What is overfitting?
+
+👉 Model memorizes data
+
+---
+
+## 🔹 Q10: What is EarlyStopping?
+
+👉 Stops training automatically
+
+---
+
+## 🔹 Q11: Difference CNN vs RNN?
+
+| CNN     | RNN             |
+| ------- | --------------- |
+| Images  | Sequential data |
+| Spatial | Temporal        |
+
+---
+
+## 🔹 Q12: What is vanishing gradient?
+
+👉 Problem in RNN training
+
+---
+
+## 🔹 Q13: Alternative to RNN?
+
+👉 LSTM / GRU
+
+---
+
+## 🔹 Q14: What is sliding window?
+
+👉 Moving sequence
+
+---
+
+## 🔹 Q15: Applications?
+
+👉 Stock prediction
+👉 Weather
+👉 NLP
+
+---
+
+# 📌 16. TRICK QUESTIONS
+
+---
+
+## ❓ Why not use ANN?
+
+👉 ANN cannot handle sequence
+
+---
+
+## ❓ Why use 60 time steps?
+
+👉 Captures trend
+
+---
+
+## ❓ Why RNN not perfect?
+
+👉 Cannot predict sudden changes
+
+---
+
+# 📌 17. WHAT EXTERNAL WILL ASK
+
+---
+
+👉 Be ready:
+
+1. What is time series
+2. Why RNN used
+3. What is sequence
+4. Explain sliding window
+5. Difference RNN vs LSTM
+
+---
+
+# 📌 18. SHORT SUMMARY (LAST MINUTE)
+
+---
+
+👉 Say this:
+
+> "This program implements stock price prediction using a recurrent neural network. The model uses past 60 days of data to predict the next day’s price. The data is normalized and processed as sequences, and the model is evaluated using error metrics and prediction plots."
+
+---
+
+# 🚀 FINAL (YOU ARE DONE 🔥)
+
+Now you have:
+
+✅ CNN
+✅ RNN
+✅ NLP
+✅ Regression
+✅ Classification
+
+👉 **Full Deep Learning Practical DONE**
+
+---
+
+# 🔥 FINAL BOOST (HIGHLY RECOMMENDED)
+
+I can give you:
+
+✅ **Complete viva sheet (ALL DL + HPC)**
+✅ **Top 30 expected questions (very accurate)**
+✅ **1-page revision before exam**
+✅ **How to impress external**
+
+Just tell me 👍

@@ -1,0 +1,467 @@
+Perfect — this is your **HPC-04: CUDA Vector Addition + Matrix Multiplication**.
+I’ll explain it exactly how **external expects**:
+👉 theory + code + working + viva + tricky questions
+
+---
+
+# 📌 1. Program Overview
+
+Your files:
+
+* Vector + Matrix CUDA code → 
+* Practical reference → 
+
+👉 This experiment includes:
+
+1. **Vector Addition using CUDA**
+2. **Matrix Multiplication using CUDA**
+
+---
+
+# 📌 2. THEORY (VERY IMPORTANT)
+
+From your document :
+
+### 🔹 Why CUDA?
+
+👉 CUDA allows:
+
+* Massive parallel execution on GPU
+* Faster computation than CPU
+
+---
+
+## 🔹 Key Idea:
+
+👉 Instead of:
+
+* CPU → sequential
+
+👉 Use:
+
+* GPU → thousands of threads
+
+---
+
+# 📌 3. PART 1: VECTOR ADDITION (CUDA)
+
+---
+
+## 🔹 KERNEL FUNCTION
+
+```cpp
+__global__ void vectorAdd(int *A, int *B, int *C, int n)
+```
+
+👉 Runs on GPU
+
+---
+
+## 🔹 Thread Index Calculation
+
+```cpp
+int i = blockIdx.x * blockDim.x + threadIdx.x;
+```
+
+👉 VERY IMPORTANT (must explain in viva)
+
+| Term        | Meaning           |
+| ----------- | ----------------- |
+| blockIdx.x  | Block ID          |
+| blockDim.x  | Threads per block |
+| threadIdx.x | Thread ID         |
+
+---
+
+## 🔹 Operation
+
+```cpp
+if (i < n) {
+    C[i] = A[i] + B[i];
+}
+```
+
+👉 Each thread adds one element
+
+---
+
+## 🔹 KERNEL LAUNCH
+
+```cpp
+vectorAdd<<<(n+255)/256, 256>>>(...)
+```
+
+👉 Explain clearly:
+
+| Part        | Meaning           |
+| ----------- | ----------------- |
+| 256         | threads per block |
+| (n+255)/256 | number of blocks  |
+
+---
+
+## 🔹 WHY THIS FORMULA?
+
+👉 To ensure:
+
+* All elements are covered
+* Even if n not divisible by 256
+
+---
+
+## 🔹 MEMORY FLOW
+
+1. Allocate GPU memory (`cudaMalloc`)
+2. Copy CPU → GPU (`cudaMemcpy`)
+3. Execute kernel
+4. Copy GPU → CPU
+
+---
+
+## 🔹 OUTPUT EXAMPLE
+
+```text
+A = 10 5 10 36 45
+B = 10 2 1 3 4
+
+Result:
+20 7 11 39 49
+```
+
+---
+
+# 📌 4. VECTOR ADDITION ALGORITHM
+
+---
+
+1. Initialize vectors
+2. Allocate GPU memory
+3. Copy data to GPU
+4. Launch kernel
+5. Each thread adds one element
+6. Copy result back
+
+---
+
+# 📌 5. PART 2: MATRIX MULTIPLICATION (CUDA)
+
+---
+
+## 🔹 KERNEL FUNCTION
+
+```cpp
+__global__ void matrixMul(int *A, int *B, int *C, int n)
+```
+
+---
+
+## 🔹 THREAD POSITION
+
+```cpp
+int row = blockIdx.y * blockDim.y + threadIdx.y;
+int col = blockIdx.x * blockDim.x + threadIdx.x;
+```
+
+👉 Each thread computes ONE element of matrix
+
+---
+
+## 🔹 MULTIPLICATION LOGIC
+
+```cpp
+for (int k = 0; k < n; k++) {
+    sum += A[row * n + k] * B[k * n + col];
+}
+```
+
+👉 Standard matrix multiplication
+
+---
+
+## 🔹 STORE RESULT
+
+```cpp
+C[row * n + col] = sum;
+```
+
+---
+
+## 🔹 THREAD CONFIGURATION
+
+```cpp
+dim3 threads(16,16);
+dim3 blocks((n+15)/16, (n+15)/16);
+```
+
+👉 Explain:
+
+| Value     | Meaning            |
+| --------- | ------------------ |
+| 16x16     | threads per block  |
+| grid size | covers full matrix |
+
+---
+
+## 🔴 IMPORTANT
+
+```cpp
+cudaDeviceSynchronize();
+```
+
+👉 Ensures:
+
+* GPU finishes execution before copying result
+
+---
+
+## 🔹 OUTPUT EXAMPLE
+
+```text
+Matrix A:
+2 5 4
+6 5 4
+3 6 5
+
+Matrix B:
+3 4 8
+6 9 7
+4 5 6
+
+Result:
+52 73 75
+64 89 107
+65 91 96
+```
+
+---
+
+# 📌 6. MATRIX MULTIPLICATION ALGORITHM
+
+---
+
+1. Initialize matrices
+2. Allocate GPU memory
+3. Copy data to GPU
+4. Launch kernel
+5. Each thread computes one element
+6. Copy result back
+
+---
+
+# 📌 7. IMPORTANT CUDA CONCEPTS (VIVA GOLD)
+
+---
+
+## 🔹 Grid–Block–Thread Model
+
+| Level  | Description           |
+| ------ | --------------------- |
+| Grid   | collection of blocks  |
+| Block  | collection of threads |
+| Thread | smallest unit         |
+
+---
+
+## 🔹 Parallelism
+
+👉 Achieved by:
+
+* Thousands of threads executing simultaneously
+
+---
+
+## 🔹 Memory Functions
+
+| Function   | Purpose             |
+| ---------- | ------------------- |
+| cudaMalloc | allocate GPU memory |
+| cudaMemcpy | transfer data       |
+| cudaFree   | free memory         |
+
+---
+
+# 📌 8. VIVA QUESTIONS (VERY IMPORTANT)
+
+---
+
+## 🔹 Q1: Why CUDA for vector addition?
+
+👉 Because:
+
+* Each element independent
+* Perfect for parallel execution
+
+---
+
+## 🔹 Q2: How parallelism achieved?
+
+👉 Each thread processes one element
+
+---
+
+## 🔹 Q3: What is kernel?
+
+👉 Function executed on GPU
+
+---
+
+## 🔹 Q4: What is thread index formula?
+
+👉
+
+```cpp
+i = blockIdx.x * blockDim.x + threadIdx.x;
+```
+
+---
+
+## 🔹 Q5: Why check `i < n`?
+
+👉 To avoid:
+
+* Out-of-bound access
+
+---
+
+## 🔹 Q6: Why matrix multiplication is parallel?
+
+👉 Each element independent
+
+---
+
+## 🔹 Q7: Why use 2D threads in matrix?
+
+👉 Because:
+
+* Matrix is 2D structure
+
+---
+
+## 🔹 Q8: What is cudaDeviceSynchronize?
+
+👉 Waits for GPU to finish
+
+---
+
+## 🔹 Q9: CPU vs GPU?
+
+| CPU        | GPU       |
+| ---------- | --------- |
+| Few cores  | Thousands |
+| Sequential | Parallel  |
+
+---
+
+## 🔹 Q10: What is speedup?
+
+👉 Faster execution using GPU
+
+---
+
+## 🔹 Q11: Why block size 16x16?
+
+👉 Optimal for GPU performance
+
+---
+
+## 🔹 Q12: What happens without cudaMemcpy?
+
+👉 No data transfer → wrong output
+
+---
+
+## 🔹 Q13: What is global memory?
+
+👉 GPU memory accessible by all threads
+
+---
+
+## 🔹 Q14: Why use `(n+15)/16`?
+
+👉 To cover all matrix elements
+
+---
+
+## 🔹 Q15: Where used?
+
+👉 Applications:
+
+* AI
+* Image processing
+* Scientific computing
+
+---
+
+# 📌 9. TRICK QUESTIONS (EXTERNAL FAVORITE)
+
+---
+
+## ❓ Why vector addition is easier to parallelize?
+
+👉 Because:
+
+* No dependency between elements
+
+---
+
+## ❓ Why matrix multiplication is heavier?
+
+👉 Because:
+
+* Requires nested loop computation
+
+---
+
+## ❓ What if threads > elements?
+
+👉 Extra threads do nothing (due to condition)
+
+---
+
+# 📌 10. WHAT EXTERNAL WILL ASK
+
+---
+
+👉 Be ready:
+
+1. Thread indexing formula
+2. Difference between 1D & 2D grid
+3. Why GPU faster than CPU
+4. Memory transfer steps
+5. Kernel execution flow
+
+---
+
+# 📌 11. SHORT SUMMARY (LAST MINUTE)
+
+👉 Say this:
+
+> "This program implements vector addition and matrix multiplication using CUDA, where each thread performs a small computation. Vector addition assigns one element per thread, while matrix multiplication assigns one matrix element per thread. Parallelism is achieved using grid, block, and thread hierarchy."
+
+---
+
+# 🚀 FINAL (YOU ARE READY)
+
+Now you have covered:
+
+✅ BFS
+✅ DFS
+✅ Bubble Sort
+✅ Merge Sort
+✅ CUDA Reduction
+✅ CUDA Vector + Matrix
+
+👉 This is **100% complete HPC practical syllabus**
+
+---
+
+# 🔥 If you want (HIGHLY USEFUL)
+
+I can give you:
+
+✅ **Final viva sheet (ALL experiments combined)**
+✅ **1-page revision (super fast before exam)**
+✅ **Top 20 expected questions (VERY ACCURATE)**
+✅ **How to answer confidently in viva**
+
+Just tell me 👍

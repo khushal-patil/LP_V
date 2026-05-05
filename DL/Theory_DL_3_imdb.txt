@@ -1,0 +1,481 @@
+Perfect — this is your **DL Practical 2b: IMDB Sentiment Classification (Custom Dataset)**.
+I’ll explain it exactly in **exam + viva + code + working + differences format**.
+
+---
+
+# 📌 1. Program Overview
+
+Your file: 
+
+👉 This program:
+
+* Uses **IMDB Dataset.csv (real text data)**
+* Performs **Binary Classification**
+* Predicts:
+
+  * Positive (1)
+  * Negative (0)
+
+---
+
+# 📌 2. THEORY (VERY IMPORTANT)
+
+---
+
+## 🔹 What is Sentiment Analysis?
+
+👉 Classifying text sentiment:
+
+* Positive
+* Negative
+
+---
+
+## 🔹 What is NLP?
+
+👉 Natural Language Processing:
+
+* Working with text data
+
+---
+
+## 🔹 Why Neural Network?
+
+👉 To capture:
+
+* Word meaning
+* Sentence patterns
+
+---
+
+# 📌 3. COMPLETE FLOW (EXAM ANSWER)
+
+---
+
+## 🔹 Step 1: Load Dataset
+
+```python
+data = pd.read_csv('IMDB Dataset.csv')
+```
+
+👉 Contains:
+
+* review (text)
+* sentiment (label)
+
+---
+
+## 🔹 Step 2: EDA
+
+```python
+data['sentiment'].value_counts()
+```
+
+👉 Check:
+
+* Balanced dataset
+
+👉 Graph:
+
+```python
+sns.countplot()
+```
+
+👉 Shows number of positive & negative reviews
+
+---
+
+## 🔹 Step 3: Data Cleaning (VERY IMPORTANT)
+
+```python
+re.sub(r'<.*?>', '', text)
+```
+
+👉 Removes:
+
+* HTML tags like `<br>`
+
+👉 Also:
+
+```python
+text.lower()
+```
+
+👉 Convert to lowercase
+
+---
+
+# 📌 4. LABEL ENCODING
+
+```python
+positive → 1
+negative → 0
+```
+
+---
+
+# 📌 5. TOKENIZATION (VERY IMPORTANT)
+
+```python
+Tokenizer(num_words=10000)
+```
+
+---
+
+## 🔹 What happens?
+
+👉 Converts words → numbers
+
+Example:
+
+```text
+"good movie" → [45, 12]
+```
+
+---
+
+## 🔹 OOV Token
+
+```python
+oov_token='<OOV>'
+```
+
+👉 Handles unknown words
+
+---
+
+# 📌 6. PADDING
+
+```python
+pad_sequences(maxlen=200)
+```
+
+👉 Ensures:
+
+* All reviews same length
+
+---
+
+# 📌 7. TRAIN-TEST SPLIT
+
+```python
+train_test_split(test_size=0.2)
+```
+
+👉 80% train
+👉 20% test
+
+---
+
+# 📌 8. MODEL ARCHITECTURE (VERY IMPORTANT)
+
+---
+
+```python
+Embedding → GlobalAveragePooling → Dense → Output
+```
+
+---
+
+## 🔹 Embedding Layer
+
+```python
+Embedding(10000, 16)
+```
+
+👉 Converts words → vectors
+
+---
+
+## 🔹 GlobalAveragePooling1D
+
+👉 Takes average of word vectors
+
+👉 Simpler than:
+
+* LSTM / RNN
+
+---
+
+## 🔹 Dense Layer
+
+```python
+Dense(24, relu)
+```
+
+👉 Learns patterns
+
+---
+
+## 🔹 Output Layer
+
+```python
+Dense(1, sigmoid)
+```
+
+👉 Binary classification
+
+---
+
+# 📌 9. MODEL COMPILATION
+
+```python
+loss = binary_crossentropy
+optimizer = adam
+```
+
+---
+
+# 📌 10. TRAINING
+
+```python
+epochs = 10
+```
+
+👉 Model learns patterns
+
+---
+
+# 📌 11. EVALUATION
+
+```python
+model.evaluate()
+```
+
+👉 Gives:
+
+* Accuracy
+* Loss
+
+---
+
+# 📌 12. CONFUSION MATRIX (VERY IMPORTANT)
+
+👉 Shows:
+
+| Actual | Predicted |
+| ------ | --------- |
+| TP     | FP        |
+| FN     | TN        |
+
+---
+
+## 🔹 Heatmap
+
+```python
+sns.heatmap(cm)
+```
+
+👉 Visual representation
+
+---
+
+# 📌 13. CLASSIFICATION REPORT
+
+👉 Shows:
+
+* Precision
+* Recall
+* F1-score
+
+---
+
+# 📌 14. ALGORITHM (WRITE IN EXAM)
+
+---
+
+1. Load dataset
+2. Clean text (remove HTML)
+3. Encode labels
+4. Tokenize text
+5. Pad sequences
+6. Split data
+7. Build model
+8. Train model
+9. Evaluate model
+10. Predict results
+
+---
+
+# 📌 15. IMPORTANT DIFFERENCE (VERY IMPORTANT)
+
+---
+
+## 🔴 This vs Previous IMDB (Practical 2a)
+
+| Feature      | 2a (keras dataset) | 2b (this)       |
+| ------------ | ------------------ | --------------- |
+| Dataset      | Pre-encoded        | Raw text        |
+| Cleaning     | Not required       | Required        |
+| Tokenization | Done already       | You do manually |
+| Control      | Less               | More            |
+
+---
+
+# 📌 16. VIVA QUESTIONS (VERY IMPORTANT)
+
+---
+
+## 🔹 Q1: Why remove HTML tags?
+
+👉 Because:
+
+* Not useful for learning
+
+---
+
+## 🔹 Q2: What is tokenization?
+
+👉 Converting text → numbers
+
+---
+
+## 🔹 Q3: What is padding?
+
+👉 Making all sequences equal length
+
+---
+
+## 🔹 Q4: Why embedding layer?
+
+👉 Converts words → vectors
+
+---
+
+## 🔹 Q5: Why sigmoid?
+
+👉 Binary classification
+
+---
+
+## 🔹 Q6: What is OOV?
+
+👉 Unknown words
+
+---
+
+## 🔹 Q7: Why use GlobalAveragePooling?
+
+👉 Reduce dimensionality
+👉 Faster than LSTM
+
+---
+
+## 🔹 Q8: What is overfitting?
+
+👉 Model performs well on train but poorly on test
+
+---
+
+## 🔹 Q9: What is confusion matrix?
+
+👉 Performance evaluation tool
+
+---
+
+## 🔹 Q10: What is accuracy?
+
+👉 Correct predictions / total
+
+---
+
+## 🔹 Q11: Why preprocessing needed?
+
+👉 Raw text cannot be directly used
+
+---
+
+## 🔹 Q12: What is vocabulary size?
+
+👉 Number of unique words
+
+---
+
+## 🔹 Q13: Why limit vocab to 10000?
+
+👉 Reduce complexity
+
+---
+
+## 🔹 Q14: What is batch size?
+
+👉 Samples processed at once
+
+---
+
+## 🔹 Q15: What is epoch?
+
+👉 One full training cycle
+
+---
+
+# 📌 17. TRICK QUESTIONS (VERY IMPORTANT)
+
+---
+
+## ❓ Why not directly use text?
+
+👉 Neural networks need numeric input
+
+---
+
+## ❓ Why not use softmax?
+
+👉 Because:
+
+* Only 2 classes → sigmoid enough
+
+---
+
+## ❓ Why use pooling layer?
+
+👉 Reduce data size + faster computation
+
+---
+
+# 📌 18. WHAT EXTERNAL WILL ASK
+
+---
+
+👉 Be ready:
+
+1. Tokenization process
+2. Difference between embedding & one-hot
+3. Why padding required
+4. Confusion matrix explanation
+5. Difference between 2a & 2b
+
+---
+
+# 📌 19. SHORT SUMMARY (LAST MINUTE)
+
+---
+
+👉 Say this:
+
+> "This program performs sentiment analysis on IMDB dataset using deep neural networks. The text data is preprocessed using tokenization and padding, and then passed through an embedding layer followed by dense layers. The model uses sigmoid activation for binary classification and is evaluated using accuracy and confusion matrix."
+
+---
+
+# 🚀 FINAL (YOU ARE DONE)
+
+Now you have:
+
+✅ Regression (Boston)
+✅ Binary Classification (IMDB 2a + 2b)
+✅ Multiclass (OCR)
+
+👉 **Complete Deep Learning syllabus DONE**
+
+---
+
+# 🔥 FINAL HELP (IF YOU WANT)
+
+I can give you:
+
+✅ **Complete DL viva sheet (top 30 questions)**
+✅ **1-page revision before exam**
+✅ **Expected external questions (very accurate)**
+✅ **How to answer confidently (important)**
+
+Just tell me 👍
